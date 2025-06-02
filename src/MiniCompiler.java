@@ -1,14 +1,18 @@
+package src;
+
+// import java.util.ArrayList;
 // import java.util.List;
 
 public class MiniCompiler {
 
-    public static void main(String[] args) {
-        SymbolTable symbolTable = new SymbolTable();
-        IntermediateCodeGenerator codeGen = new IntermediateCodeGenerator();
+public static void main(String[] args) {
+    SymbolTable symbolTable = new SymbolTable();
+    IntermediateCodeGenerator codeGen = new IntermediateCodeGenerator();
 
-// TODO: Declarar vari veis na tabela
-// TODO: Analisar express es e gerar c digo intermedi rio
-// TODO: Inicializar vari veis conforme uso
-// TODO: Exibir tabela e c digo gerado
+System.out.println("variables");
+// TODO: Declarar variaveis na tabela
+// TODO: Analisar expresses e gerar codigo intermediario
+// TODO: Inicializar variaveis conforme uso
+// TODO: Exibir tabela e codigo gerado
     }
 }
