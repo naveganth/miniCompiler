@@ -43,6 +43,10 @@ public static void main(String[] args) throws IOException {
             this.tipo = tipo;
             this.valor = valor;
         }
+
+        @Override public String toString() {
+            return "Token { Tipo: "+ tipo +", Valor: " + valor + " }"; 
+        }
     }
 
     public static class Lexer {
