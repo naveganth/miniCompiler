@@ -62,16 +62,16 @@ public static void main(String[] args) throws IOException {
             Pattern reVirgula = Pattern.compile("^,");
             Pattern reIgual = Pattern.compile("^=");
             Pattern reNum = Pattern.compile("^[0-9]+");
-            Pattern reVar = Pattern.compile("^[a-zA-Z]");
+            Pattern reVar = Pattern.compile("^(?!int)[a-zA-Z]");
             // ArrayList<Pattern> regexes = new ArrayList<Pattern>();
             HashMap<String, Pattern> regexes = new HashMap<String, Pattern>();
+            regexes.put("ID", reVar);
             regexes.put("int", reInt);
             regexes.put("mais", reMais);
             regexes.put("menos", reMenos);
             regexes.put("vezes", reMult);
             regexes.put("barra", reDiv);
             regexes.put("numero", reNum);
-            regexes.put("ID", reVar);
             regexes.put("pontoevirgula", rePontoVirgula);
             regexes.put("virgula", reVirgula);
             regexes.put("igual", reIgual);
