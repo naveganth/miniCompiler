@@ -12,4 +12,7 @@ bin/
 
 # Build output
 out/
-build/ 
+build/
+
+# Project specific
+/compiladores/
