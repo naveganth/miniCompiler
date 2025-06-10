@@ -2,17 +2,4 @@
 *.class
 bin/
 
-# IDE files
-.idea/
-*.iml
-.vscode/
-.settings/
-.classpath
-.project
-
-# Build output
-out/
-build/
-
-# Project specific
 /compiladores/
