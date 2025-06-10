@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,10 +11,16 @@ public class MiniCompiler {
 
 public static void main(String[] args) throws IOException {
     String fonte = LerFonte(Path.of("./src/MiniCalc"));
+    
     Lexer l = new Lexer();
     l.CriarTokens(fonte);
+    ArrayList<Token> tokens = l.tokens;
+    // System.out.println("Tokens criados: " + tokens);
 
     SymbolTable symbolTable = new SymbolTable();
+    Sintatico s = new Sintatico(tokens, symbolTable);
+    s.parse();
+    symbolTable.printTable();
     // IntermediateCodeGenerator codeGen = new IntermediateCodeGenerator();
 
     System.out.println("variables");
@@ -113,6 +118,121 @@ public static void main(String[] args) throws IOException {
                         break;
                     }
                 }
+            }
+        }
+    }
+
+    public static class Sintatico {
+        private ArrayList<Token> tokens;
+        private int indiceAtual;
+        private int indiceMax;
+        private Token lookahead;
+        private SymbolTable symbolTable;
+
+        public Sintatico(ArrayList<Token> tokens, SymbolTable symbolTable) {
+            this.tokens = tokens;
+            this.indiceAtual = 0;
+            this.indiceMax = tokens.size();
+            this.lookahead = this.tokens.get(indiceAtual);
+            this.symbolTable = symbolTable;
+        }
+
+        public void consume(String esperado) throws IOException {
+            if (lookahead == null) throw new RuntimeException("Fim inesperado");
+            if (lookahead.tipo.equals(esperado)) {
+                indiceAtual += 1;
+                if (indiceAtual < indiceMax) {
+                    lookahead = tokens.get(indiceAtual);
+                } else {
+                    lookahead = null;
+                }
+            } else {
+                erro("Esperado: " + esperado + ", encontrado: " + lookahead.tipo);
+            }
+        }
+
+        public void erro(String msg) {
+            if (lookahead != null) {
+                System.out.println("Erro sintático: " + msg + " (" + indiceAtual + ")");
+            } else {
+                System.out.println("Erro sintático: " + msg + " (-1)");
+            }
+        }
+
+        public void parse() throws IOException {
+            bloco();
+            System.out.println("Análise sintática concluída com sucesso");
+        }
+
+        public void bloco() throws IOException {
+            declaracao_variavel();
+            expressao();
+            expressao();
+        }
+
+        public void declaracao_variavel() throws IOException {
+            consume("int");
+            if (this.symbolTable.isInitialized(lookahead.valor)) {
+                erro("Variável já declarada: " + lookahead.valor);
+            }
+            this.symbolTable.initialize(lookahead.valor);
+            consume("ID");
+
+            while (lookahead.tipo == "virgula") {
+                consume("virgula");
+                if (lookahead.tipo == "ID") {
+                    if (this.symbolTable.isInitialized(lookahead.valor)) {
+                        erro("Variável já inicializada: " + lookahead.valor);
+                    }
+                    this.symbolTable.initialize(lookahead.valor);
+                    consume("ID");
+                }
+            }
+            consume("pontoevirgula");
+        }
+
+        public void expressao() throws IOException {
+            if (!symbolTable.isInitialized(lookahead.valor)) {
+                erro("Variável não declarada: " + lookahead.valor);
+            }
+            consume("ID");
+            consume("igual");
+            expr();
+            consume("pontoevirgula");
+        }
+
+        public void expr() throws IOException {
+            termo();
+
+            while (lookahead.tipo == "mais" || lookahead.tipo == "menos") {
+                consume(lookahead.tipo);
+                termo();
+            }
+        }
+
+        public void termo() throws IOException {
+            fator();
+
+            while (lookahead.tipo == "vezes" || lookahead.tipo == "barra") {
+                consume(lookahead.tipo);
+                fator();
+            }
+        }
+
+        public void fator() throws IOException {
+            switch (lookahead.tipo) {
+                case "ID":
+                    if (!symbolTable.isInitialized(lookahead.valor)) {
+                        erro("Variável não declarada: " + lookahead.valor);
+                    }
+                    consume("ID");
+                    break;
+                case "numero":
+                    consume("numero");
+                    break;
+                default:
+                    erro("Esperado: ID ou número, encontrado: " + lookahead.valor);
+                    break;
             }
         }
     }
